@@ -2,19 +2,16 @@ namespace Slice;
 
 public static class Diagnostics
 {
-    private static bool _disableExiting;
-    
-    public static void DisableExiting()
-    {
-        _disableExiting = true;
-    }
-    
-    public static void LogError(string message)
-    {
-        Console.WriteLine(message);
+    private static bool _throwInsteadOfExiting;
 
-        if (_disableExiting) throw new DiagnosticsException($"Exited due to error: {message}");
-        
+    public static void ThrowInsteadOfExiting() => _throwInsteadOfExiting = true;
+    
+    public static void LogError(long line, long start, long end, string message)
+    {
+        var log = $"Fatal Error <{line}:{start}-{end}>: {message}";
+        Console.WriteLine(log);
+
+        if (_throwInsteadOfExiting) throw new DiagnosticsException(log);
         Environment.Exit(1);
     }
     

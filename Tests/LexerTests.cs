@@ -16,6 +16,7 @@ public class LexerTests
                             "This is a string"
                             23 23.5 .5
                             <- == != >= <= > < . { } ( ) [ ]
+                            + - * / %
                             """;
 
         var tokens = Lexer
@@ -102,8 +103,16 @@ public class LexerTests
         Assert.AreEqual(TokenType.PARAN_CLOSE, tokens[33].Type);
         Assert.AreEqual(TokenType.SQUARE_OPEN, tokens[34].Type);
         Assert.AreEqual(TokenType.SQUARE_CLOSE, tokens[35].Type);
+        
+        Assert.AreEqual(TokenType.END_OF_LINE, tokens[36].Type);
+        
+        Assert.AreEqual(TokenType.ADDITION, tokens[37].Type);
+        Assert.AreEqual(TokenType.SUBTRACTION, tokens[38].Type);
+        Assert.AreEqual(TokenType.MULTIPLICATION, tokens[39].Type);
+        Assert.AreEqual(TokenType.DIVISION, tokens[40].Type);
+        Assert.AreEqual(TokenType.MODULUS, tokens[41].Type);
 
-        Assert.AreEqual(TokenType.END_OF_FILE, tokens[36].Type);
+        Assert.AreEqual(TokenType.END_OF_FILE, tokens[42].Type);
     }
 
     [TestMethod]
@@ -119,5 +128,20 @@ public class LexerTests
         {
             Console.WriteLine(token);
         }
+    }
+
+    [TestMethod]
+    public void TestDecimalOnlyHasOnePoint()
+    {
+        Diagnostics.ThrowInsteadOfExiting();
+
+        const string code = "23.3.5";
+
+        Assert.ThrowsException<DiagnosticsException>(() =>
+        {
+            var tokens = Lexer
+                .FromText("test", code)
+                .Tokenize();
+        }, "Fatal Error <1:1-5>: To many decimal points.");
     }
 }

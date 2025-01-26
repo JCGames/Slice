@@ -8,7 +8,7 @@ public class ParserTests
     [TestMethod]
     public void TestParser()
     {
-        Diagnostics.DisableExiting();
+        Diagnostics.ThrowInsteadOfExiting();
         
         const string code = """
                             int number <- 10

@@ -1,9 +1,10 @@
 using Slice.Models;
 using Slice.Models.Nodes;
+using Slice.Models.Nodes.BinaryOperators;
 
 namespace Slice;
 
-public class Parser
+public sealed class Parser
 {
     private List<Token> _tokens = [];
     private int _currentIndex;
@@ -50,12 +51,10 @@ public class Parser
         _currentToken = _tokens[_currentIndex];
     }
 
-    private void AssertType(TokenType expectedType, Token token)
+    private static void AssertType(TokenType expectedType, Token token)
     {
-        if (token.Type != expectedType)
-        {
-            Diagnostics.LogError($"Expected a {expectedType}, but found {token.Type}");
-        }
+        if (token.Type == expectedType) return;
+        Diagnostics.LogError(0, 0, 0, $"Expected a {expectedType}, but found {token.Type}");
     }
     
     public BlockNode? Parse()
@@ -68,11 +67,11 @@ public class Parser
 
     private BlockNode ParseFile()
     {
-        var block = new BlockNode();
+        var block = new BlockNode([]);
         
         while (_currentToken.Type is not TokenType.END_OF_FILE)
         {
-            if (ParseNextNode() is { } node) block.Children.Add(node);
+            if (ParseNextNode() is { } node) block.Value.Add(node);
             else Next();
         }
         
@@ -101,12 +100,12 @@ public class Parser
     private Node ParseVariableDeclarationNode()
     {
         var node = new VariableDeclarationNode();
-        node.Children.Add(new TypeNode(_currentToken.Value));
+        node.Value.LeftChild = new TypeNode(_currentToken.Value);
             
         Next();
         AssertType(TokenType.IDENTIFIER, _currentToken);
             
-        node.Children.Add(new IdentifierNode(_currentToken.Value));
+        node.Value.RightChild = new IdentifierNode(_currentToken.Value);
         return node;
     }
 

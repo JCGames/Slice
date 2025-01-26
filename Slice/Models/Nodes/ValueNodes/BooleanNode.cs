@@ -1,4 +1,6 @@
-namespace Slice.Models.Nodes;
+using Slice.Models.Nodes;
+
+namespace Slice.Models.Nodes.ValueNodes;
 
 public class BooleanNode : Node<bool>
 {

@@ -2,7 +2,7 @@ using System.Text;
 
 namespace Slice;
 
-public class Scanner : IDisposable
+public sealed class Scanner : IDisposable
 {
     private Stream _stream = null!;
     

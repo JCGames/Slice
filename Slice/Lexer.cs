@@ -3,7 +3,7 @@ using Slice.Models;
 
 namespace Slice;
 
-public class Lexer : IEnumerable<Token>
+public sealed class Lexer
 {
     private Scanner _scanner = null!;
     private readonly List<Token> _tokens = [];
@@ -23,6 +23,11 @@ public class Lexer : IEnumerable<Token>
     private const string ParanClose = ")";
     private const string SquareOpen = "[";
     private const string SquareClose = "]";
+    private const string Addition = "+";
+    private const string Subtraction = "-";
+    private const string Multiplication = "*";
+    private const string Division = "/";
+    private const string Modulus = "%";
     
     public static Lexer FromFile(string filePath) => new()
     {
@@ -98,7 +103,7 @@ public class Lexer : IEnumerable<Token>
         }
         
         //  ================
-        //  DOUBLE OPERATORS
+        //  BINARY OPERATORS
         //  ================
         
         // ASSIGNMENT
@@ -167,9 +172,9 @@ public class Lexer : IEnumerable<Token>
             _scanner.Next();
         }
         
-        //  ================
-        //  SINGLE OPERATORS
-        //  ================
+        //  ===============
+        //  UNARY OPERATORS
+        //  ===============
         
         // GREATER THAN
         else if (_scanner.Current is '>')
@@ -207,6 +212,71 @@ public class Lexer : IEnumerable<Token>
             
             _scanner.Next();
         }
+        // ADDITION
+        else if (_scanner.Current is '+')
+        {
+            _tokens.Add(new Token(
+                TokenType.ADDITION,
+                Addition,
+                _currentLine,
+                _scanner.Index,
+                _scanner.Index));
+            
+            _scanner.Next();
+        }
+        // SUBTRACTION
+        else if (_scanner.Current is '-')
+        {
+            _tokens.Add(new Token(
+                TokenType.SUBTRACTION,
+                Subtraction,
+                _currentLine,
+                _scanner.Index,
+                _scanner.Index));
+            
+            _scanner.Next();
+        }
+        // MULTIPLICATION
+        else if (_scanner.Current is '*')
+        {
+            _tokens.Add(new Token(
+                TokenType.MULTIPLICATION,
+                Multiplication,
+                _currentLine,
+                _scanner.Index,
+                _scanner.Index));
+            
+            _scanner.Next();
+        }
+        // DIVISION
+        else if (_scanner.Current is '/')
+        {
+            _tokens.Add(new Token(
+                TokenType.DIVISION,
+                Division,
+                _currentLine,
+                _scanner.Index,
+                _scanner.Index));
+            
+            _scanner.Next();
+        }
+        // MODULUS
+        else if (_scanner.Current is '%')
+        {
+            _tokens.Add(new Token(
+                TokenType.MODULUS,
+                Modulus,
+                _currentLine,
+                _scanner.Index,
+                _scanner.Index));
+            
+            _scanner.Next();
+        }
+        
+        // ======
+        // BLOCKS
+        // ======
+        
         // BLOCK OPEN
         else if (_scanner.Current is '{')
         {
@@ -379,8 +449,19 @@ public class Lexer : IEnumerable<Token>
         while (!_scanner.IsEndOfStream)
         {
             number += _scanner.Current;
+
+            if (_scanner.Current is '.')
+            {
+                if (!isDecimal)
+                {
+                    isDecimal = true;
+                }
+                else
+                {
+                    Diagnostics.LogError(_currentLine, startIndex, _scanner.Index, $"To many decimal points.");
+                }
+            }
             
-            if (_scanner.Current is '.') isDecimal = true;
             if (_scanner.Peek() is not '.' && !char.IsDigit(_scanner.Peek())) break;
             
             _scanner.Next();
@@ -394,15 +475,5 @@ public class Lexer : IEnumerable<Token>
             _scanner.Index));
         
         _scanner.Next();
-    }
-    
-    public IEnumerator<Token> GetEnumerator()
-    {
-        return _tokens.GetEnumerator();
-    }
-
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return _tokens.GetEnumerator();
     }
 }
