@@ -6,7 +6,7 @@ public sealed class Scanner : IDisposable
 {
     private Stream _stream = null!;
     
-    public string FileName { get; private set; } = null!;
+    public string FilePath { get; private set; } = null!;
     public char Current { get; private set; } = '\0';
     public long Index => _stream.Position;
     public static bool IsEndOfLineCharacter(char c) => c is '\n' or '\r';
@@ -24,7 +24,7 @@ public sealed class Scanner : IDisposable
         var scanner = new Scanner
         {
             _stream = new FileStream(filePath, FileMode.Open),
-            FileName = Path.GetFileName(filePath)
+            FilePath = Path.GetFileName(filePath)
         };
 
         scanner.Current = (char)scanner._stream.ReadByte();
@@ -36,7 +36,7 @@ public sealed class Scanner : IDisposable
         var scanner = new Scanner
         {
             _stream = new MemoryStream(Encoding.UTF8.GetBytes(text + '\0')),
-            FileName = fileName
+            FilePath = fileName
         };
         
         scanner.Current = (char)scanner._stream.ReadByte();

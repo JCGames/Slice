@@ -49,22 +49,14 @@ public enum TokenType
 public class Token(
     TokenType type,
     string value,
-    long line,
-    long start,
-    long end)
+    Meta meta)
 {
     public readonly TokenType Type = type;
     public readonly string Value = value;
-
-    public readonly Context Context = new()
-    {
-        Line = line,
-        Start = start,
-        End = end
-    };
+    public readonly Meta Meta = meta;
 
     public override string ToString()
     {
-        return $"{Type}: |{Value}|, Line: {Context.Line}, {{ {Context.Start} -> {Context.End} }}";
+        return $"{Type}: |{Value}|, Line: {Meta.Line}, {{ {Meta.Start} -> {Meta.End} }}";
     }
 }

@@ -67,7 +67,7 @@ public sealed class Parser
 
     private BlockNode ParseFile()
     {
-        var block = new BlockNode([]);
+        var block = new BlockNode();
         
         while (_currentToken.Type is not TokenType.END_OF_FILE)
         {
@@ -78,43 +78,8 @@ public sealed class Parser
         return block;
     }
 
-    private BlockNode? ParseBlock()
-    {
-        return null;
-    }
-
     private Node? ParseNextNode()
     {
-        return _currentToken switch
-        {
-            { Type: TokenType.TYPE } => ParseVariableDeclarationNode(),
-            _ => null
-        };
-    }
-
-    /**
-     * variable_declaration
-     *      : type identifier assignment?
-     *      ;
-     */
-    private Node ParseVariableDeclarationNode()
-    {
-        var node = new VariableDeclarationNode();
-        node.Value.LeftChild = new TypeNode(_currentToken.Value);
-            
-        Next();
-        AssertType(TokenType.IDENTIFIER, _currentToken);
-            
-        node.Value.RightChild = new IdentifierNode(_currentToken.Value);
-        return node;
-    }
-
-    /**
-     * assignment
-     *      : unary_expression assignment expression
-     */
-    private Node ParseAssignmentNode()
-    {
-        return new AssignmentNode();
+        return null;
     }
 }

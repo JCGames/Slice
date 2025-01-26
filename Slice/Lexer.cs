@@ -45,10 +45,8 @@ public sealed class Lexer
         
         _tokens.Add(new Token(
             TokenType.END_OF_FILE,
-            string.Empty,
-            _currentLine,
-            _scanner.Index,
-            _scanner.Index));
+            string.Empty, 
+            new Meta(_scanner.FilePath, _currentLine, _scanner.Index, _scanner.Index)));
         
         return _tokens;
     }
@@ -61,9 +59,7 @@ public sealed class Lexer
             _tokens.Add(new Token(
                 TokenType.END_OF_LINE, 
                 string.Empty, 
-                _currentLine, 
-                _scanner.Index,
-                _scanner.Index));
+                new Meta(_scanner.FilePath, _currentLine, _scanner.Index, _scanner.Index)));
 
             _scanner.Next();
         }
@@ -72,9 +68,7 @@ public sealed class Lexer
             _tokens.Add(new Token(
                 TokenType.END_OF_LINE, 
                 string.Empty, 
-                _currentLine, 
-                _scanner.Index,
-                _scanner.Index));
+                new Meta(_scanner.FilePath, _currentLine, _scanner.Index, _scanner.Index)));
 
             _currentLine++;
 
@@ -110,11 +104,9 @@ public sealed class Lexer
         else if (_scanner.Current is '<' && _scanner.Peek() is '-')
         {
             _tokens.Add(new Token(
-                TokenType.ASSIGNMENT,
-                Assignment,
-                _currentLine,
-                _scanner.Index,
-                _scanner.Index + 1));
+                TokenType.ASSIGNMENT, 
+                Assignment, 
+                new Meta(_scanner.FilePath, _currentLine, _scanner.Index, _scanner.Index + 1)));
             
             _scanner.Next();
             _scanner.Next();
@@ -123,11 +115,9 @@ public sealed class Lexer
         else if (_scanner.Current is '=' && _scanner.Peek() is '=')
         {
             _tokens.Add(new Token(
-                TokenType.EQUALS,
-                Equals,
-                _currentLine,
-                _scanner.Index,
-                _scanner.Index + 1));
+                TokenType.EQUALS, 
+                Equals, 
+                new Meta(_scanner.FilePath, _currentLine, _scanner.Index, _scanner.Index + 1)));
             
             _scanner.Next();
             _scanner.Next();
@@ -136,11 +126,9 @@ public sealed class Lexer
         else if (_scanner.Current is '!' && _scanner.Peek() is '=')
         {
             _tokens.Add(new Token(
-                TokenType.NOT_EQUALS,
-                NotEquals,
-                _currentLine,
-                _scanner.Index,
-                _scanner.Index + 1));
+                TokenType.NOT_EQUALS, 
+                NotEquals, 
+                new Meta(_scanner.FilePath, _currentLine, _scanner.Index, _scanner.Index + 1)));
             
             _scanner.Next();
             _scanner.Next();
@@ -149,11 +137,9 @@ public sealed class Lexer
         else if (_scanner.Current is '>' && _scanner.Peek() is '=')
         {
             _tokens.Add(new Token(
-                TokenType.GREATER_THAN_OR_EQUAL,
-                GreaterThanOrEqual,
-                _currentLine,
-                _scanner.Index,
-                _scanner.Index + 1));
+                TokenType.GREATER_THAN_OR_EQUAL, 
+                GreaterThanOrEqual, 
+                new Meta(_scanner.FilePath, _currentLine, _scanner.Index, _scanner.Index + 1)));
             
             _scanner.Next();
             _scanner.Next();
@@ -162,11 +148,9 @@ public sealed class Lexer
         else if (_scanner.Current is '<' && _scanner.Peek() is '=')
         {
             _tokens.Add(new Token(
-                TokenType.LESS_THAN_OR_EQUAL,
-                LessThanOrEqual,
-                _currentLine,
-                _scanner.Index,
-                _scanner.Index + 1));
+                TokenType.LESS_THAN_OR_EQUAL, 
+                LessThanOrEqual, 
+                new Meta(_scanner.FilePath, _currentLine, _scanner.Index, _scanner.Index + 1)));
             
             _scanner.Next();
             _scanner.Next();
@@ -180,11 +164,9 @@ public sealed class Lexer
         else if (_scanner.Current is '>')
         {
             _tokens.Add(new Token(
-                TokenType.GREATER_THAN,
-                GreaterThan,
-                _currentLine,
-                _scanner.Index,
-                _scanner.Index));
+                TokenType.GREATER_THAN, 
+                GreaterThan, 
+                new Meta(_scanner.FilePath, _currentLine, _scanner.Index, _scanner.Index)));
             
             _scanner.Next();
         }
@@ -192,11 +174,9 @@ public sealed class Lexer
         else if (_scanner.Current is '<')
         {
             _tokens.Add(new Token(
-                TokenType.LESS_THAN,
-                LessThan,
-                _currentLine,
-                _scanner.Index,
-                _scanner.Index));
+                TokenType.LESS_THAN, 
+                LessThan, 
+                new Meta(_scanner.FilePath, _currentLine, _scanner.Index, _scanner.Index)));
             
             _scanner.Next();
         }
@@ -204,11 +184,9 @@ public sealed class Lexer
         else if (_scanner.Current is '.')
         {
             _tokens.Add(new Token(
-                TokenType.DOT_ACCESSOR,
+                TokenType.DOT_ACCESSOR, 
                 DotAccessor,
-                _currentLine,
-                _scanner.Index,
-                _scanner.Index));
+                new Meta(_scanner.FilePath, _currentLine, _scanner.Index, _scanner.Index)));
             
             _scanner.Next();
         }
@@ -216,11 +194,9 @@ public sealed class Lexer
         else if (_scanner.Current is '+')
         {
             _tokens.Add(new Token(
-                TokenType.ADDITION,
-                Addition,
-                _currentLine,
-                _scanner.Index,
-                _scanner.Index));
+                TokenType.ADDITION, 
+                Addition, 
+                new Meta(_scanner.FilePath, _currentLine, _scanner.Index, _scanner.Index)));
             
             _scanner.Next();
         }
@@ -228,11 +204,9 @@ public sealed class Lexer
         else if (_scanner.Current is '-')
         {
             _tokens.Add(new Token(
-                TokenType.SUBTRACTION,
-                Subtraction,
-                _currentLine,
-                _scanner.Index,
-                _scanner.Index));
+                TokenType.SUBTRACTION, 
+                Subtraction, 
+                new Meta(_scanner.FilePath, _currentLine, _scanner.Index, _scanner.Index)));
             
             _scanner.Next();
         }
@@ -240,11 +214,9 @@ public sealed class Lexer
         else if (_scanner.Current is '*')
         {
             _tokens.Add(new Token(
-                TokenType.MULTIPLICATION,
-                Multiplication,
-                _currentLine,
-                _scanner.Index,
-                _scanner.Index));
+                TokenType.MULTIPLICATION, 
+                Multiplication, 
+                new Meta(_scanner.FilePath, _currentLine, _scanner.Index, _scanner.Index)));
             
             _scanner.Next();
         }
@@ -252,11 +224,9 @@ public sealed class Lexer
         else if (_scanner.Current is '/')
         {
             _tokens.Add(new Token(
-                TokenType.DIVISION,
-                Division,
-                _currentLine,
-                _scanner.Index,
-                _scanner.Index));
+                TokenType.DIVISION, 
+                Division, 
+                new Meta(_scanner.FilePath, _currentLine, _scanner.Index, _scanner.Index)));
             
             _scanner.Next();
         }
@@ -264,11 +234,9 @@ public sealed class Lexer
         else if (_scanner.Current is '%')
         {
             _tokens.Add(new Token(
-                TokenType.MODULUS,
-                Modulus,
-                _currentLine,
-                _scanner.Index,
-                _scanner.Index));
+                TokenType.MODULUS, 
+                Modulus, 
+                new Meta(_scanner.FilePath, _currentLine, _scanner.Index, _scanner.Index)));
             
             _scanner.Next();
         }
@@ -281,11 +249,9 @@ public sealed class Lexer
         else if (_scanner.Current is '{')
         {
             _tokens.Add(new Token(
-                TokenType.BLOCK_OPEN,
-                BlockOpen,
-                _currentLine,
-                _scanner.Index,
-                _scanner.Index));
+                TokenType.BLOCK_OPEN, 
+                BlockOpen, 
+                new Meta(_scanner.FilePath, _currentLine, _scanner.Index, _scanner.Index)));
             
             _scanner.Next();
         }
@@ -293,11 +259,9 @@ public sealed class Lexer
         else if (_scanner.Current is '}')
         {
             _tokens.Add(new Token(
-                TokenType.BLOCK_CLOSE,
-                BlockClose,
-                _currentLine,
-                _scanner.Index,
-                _scanner.Index));
+                TokenType.BLOCK_CLOSE, 
+                BlockClose, 
+                new Meta(_scanner.FilePath, _currentLine, _scanner.Index, _scanner.Index)));
             
             _scanner.Next();
         }
@@ -305,11 +269,9 @@ public sealed class Lexer
         else if (_scanner.Current is '(')
         {
             _tokens.Add(new Token(
-                TokenType.PARAN_OPEN,
-                ParanOpen,
-                _currentLine,
-                _scanner.Index,
-                _scanner.Index));
+                TokenType.PARAN_OPEN, 
+                ParanOpen, 
+                new Meta(_scanner.FilePath, _currentLine, _scanner.Index, _scanner.Index)));
             
             _scanner.Next();
         }
@@ -317,11 +279,9 @@ public sealed class Lexer
         else if (_scanner.Current is ')')
         {
             _tokens.Add(new Token(
-                TokenType.PARAN_CLOSE,
-                ParanClose,
-                _currentLine,
-                _scanner.Index,
-                _scanner.Index));
+                TokenType.PARAN_CLOSE, 
+                ParanClose, 
+                new Meta(_scanner.FilePath, _currentLine, _scanner.Index, _scanner.Index)));
             
             _scanner.Next();
         }
@@ -329,11 +289,9 @@ public sealed class Lexer
         else if (_scanner.Current is '[')
         {
             _tokens.Add(new Token(
-                TokenType.SQUARE_OPEN,
-                SquareOpen,
-                _currentLine,
-                _scanner.Index,
-                _scanner.Index));
+                TokenType.SQUARE_OPEN, 
+                SquareOpen, 
+                new Meta(_scanner.FilePath, _currentLine, _scanner.Index, _scanner.Index)));
             
             _scanner.Next();
         }
@@ -341,11 +299,9 @@ public sealed class Lexer
         else if (_scanner.Current is ']')
         {
             _tokens.Add(new Token(
-                TokenType.SQUARE_CLOSE,
-                SquareClose,
-                _currentLine,
-                _scanner.Index,
-                _scanner.Index));
+                TokenType.SQUARE_CLOSE, 
+                SquareClose, 
+                new Meta(_scanner.FilePath, _currentLine, _scanner.Index, _scanner.Index)));
             
             _scanner.Next();
         }
@@ -370,13 +326,11 @@ public sealed class Lexer
             
             _scanner.Next();
         }
-        
+
         _tokens.Add(new Token(
             TokenType.STRING,
-            str, 
-            _currentLine, 
-            startIndex, 
-            _scanner.Index));
+            str,
+            new Meta(_scanner.FilePath, _currentLine, startIndex, _scanner.Index)));
         
         _scanner.Next();
         _scanner.Next();
@@ -400,10 +354,8 @@ public sealed class Lexer
         
         _tokens.Add(new Token(
             TokenType.SINGLE_LINE_COMMENT,
-            comment, 
-            _currentLine, 
-            startIndex, 
-            _scanner.Index));
+            comment,
+            new Meta(_scanner.FilePath, _currentLine, startIndex, _scanner.Index)));
         
         _scanner.Next();
     }
@@ -433,9 +385,7 @@ public sealed class Lexer
         _tokens.Add(new Token(
             type,
             identifier,
-            _currentLine,
-            startIndex,
-            _scanner.Index));
+            new Meta(_scanner.FilePath, _currentLine, startIndex, _scanner.Index)));
 
         _scanner.Next();
     }
@@ -470,9 +420,7 @@ public sealed class Lexer
         _tokens.Add(new Token(
             isDecimal ? TokenType.DECIMAL : TokenType.INTEGER,
             number,
-            _currentLine,
-            startIndex,
-            _scanner.Index));
+            new Meta(_scanner.FilePath, _currentLine, startIndex, _scanner.Index)));
         
         _scanner.Next();
     }
