@@ -43,12 +43,10 @@ public class Scanner : IDisposable
         return scanner;
     }
 
-    public char Next()
+    public void Next()
     {
         Current = (char)_stream.ReadByte();
-        IsEndOfStream = Current is '\0';
-        
-        return Current;
+        IsEndOfStream = Current is '\0';   
     }
 
     public char Peek()
