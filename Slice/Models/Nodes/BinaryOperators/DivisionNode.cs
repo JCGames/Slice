@@ -1,10 +1,10 @@
 namespace Slice.Models.Nodes.BinaryOperators;
 
-public class AssignmentNode : BinaryOperatorNode
+public class DivisionNode : BinaryOperatorNode
 {
     public override void Print(string padding)
     {
-        Console.WriteLine(padding + "Assignment");
+        Console.WriteLine(padding + "Division");
         Console.WriteLine(padding + "LEFT:");
         Value.LeftChild?.Print(padding + '\t');
         Console.WriteLine(padding + "RIGHT:");

@@ -1,10 +1,7 @@
 namespace Slice.Models.Nodes;
 
-public class Expression : Node<Node?>
+public class Expression() : Node<Node?>(null)
 {
-    public Expression() : base(null)
-    { }
-
     public override void Print(string padding)
     {
         Console.WriteLine(padding + "Expression");

@@ -10,10 +10,7 @@ public class ParserTests
     {
         Diagnostics.ThrowInsteadOfExiting();
         
-        const string code = """
-                            int number <- 10
-                            int j
-                            """;
+        const string code = "50 + 32.6 * 4";
         
         var rootNode = Parser
             .FromText("test", code)

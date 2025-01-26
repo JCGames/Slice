@@ -4,7 +4,7 @@ namespace Slice.Models.Nodes.ValueNodes;
 
 public class DecimalNode : Node<double>
 {
-    protected DecimalNode(double value) : base(value)
+    public DecimalNode(double value) : base(value)
     { }
 
     public override void Print(string padding)
