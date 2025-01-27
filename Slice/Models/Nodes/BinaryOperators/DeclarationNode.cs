@@ -1,6 +1,6 @@
 namespace Slice.Models.Nodes.BinaryOperators;
 
-public class VariableDeclarationNode : BinaryOperatorNode
+public class DeclarationNode : BinaryOperatorNode
 {
     public override void Print(string padding)
     {

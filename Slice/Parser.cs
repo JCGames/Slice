@@ -154,7 +154,7 @@ public sealed class Parser
 
         void AssertIsAssignable(Node? node)
         {
-            if (node is not IdentifierNode and not VariableDeclarationNode or null)
+            if (node is not IdentifierNode and not DeclarationNode or null)
             {
                 Diagnostics.LogError(node?.Meta ?? _currentToken.Meta, "Invalid term to the left of the assignment operator.");
             }
@@ -246,9 +246,9 @@ public sealed class Parser
             return exp;
         }
 
-        VariableDeclarationNode GetVariableDeclaration()
+        DeclarationNode GetVariableDeclaration()
         {
-            var node = new VariableDeclarationNode();
+            var node = new DeclarationNode();
 
             node.Value.LeftChild = new TypeNode(_currentToken.Value);
 
