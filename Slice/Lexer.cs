@@ -307,6 +307,8 @@ public sealed class Lexer
         }
         else
         {
+            if (!_scanner.IsWhitespace) Diagnostics.LogError(_currentLine, _scanner.Index, _scanner.Index, "Found unknown character.");
+
             _scanner.Next();
         }
     }

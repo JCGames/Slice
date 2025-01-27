@@ -1,3 +1,5 @@
+using System.Net.NetworkInformation;
+using System.Security.Cryptography;
 using Slice.Models;
 using Slice.Models.Nodes;
 using Slice.Models.Nodes.BinaryOperators;
@@ -52,10 +54,15 @@ public sealed class Parser
         _currentToken = _tokens[_currentIndex];
     }
 
+    private void AssertType(TokenType expectedType)
+    {
+        AssertType(expectedType, _currentToken);
+    }
+
     private static void AssertType(TokenType expectedType, Token token)
     {
         if (token.Type == expectedType) return;
-        Diagnostics.LogError(0, 0, 0, $"Expected a {expectedType}, but found {token.Type}");
+        Diagnostics.LogError(token.Meta, $"Expected a {expectedType}, but found {token.Type}");
     }
     
     public BlockNode? Parse()
@@ -84,75 +91,130 @@ public sealed class Parser
         return ParseExpression();
     }
 
-    private Expression ParseExpression() => new()
+    private Expression ParseExpression()
     {
-        Value = ParseAdditionAndSubtraction()
-    };
+        var node = ParseAssignment();
 
-    private Node? ParseAdditionAndSubtraction()
+        if (_currentToken.Type is not TokenType.END_OF_LINE and not TokenType.END_OF_FILE)
+        {
+            Diagnostics.LogError(_currentToken.Meta, "Expression should end at new line");
+        }
+
+        return new Expression
+        {
+            Value = node
+        };
+    }
+
+    private Node? ParseAssignment()
     {
-        var result = ParseMultiplicationAndDivision();
+        var nodes = new Stack<Node?>();
+        nodes.Push(ParseTerm());
+        Node? result = nodes.Peek();
+
+        while (_currentToken.Type is TokenType.ASSIGNMENT)
+        {
+            Next();
+            nodes.Push(ParseTerm());
+        }
+
+        if (nodes.Count > 2)
+        {
+            while (nodes.Count > 1)
+            {
+                var right = nodes.Pop();
+                var left = nodes.Pop();
+
+                AssertIsAssignable(left);
+
+                result = new AssignmentNode
+                {
+                    Value = new LeftRightChild(left, right)
+                };
+            }
+
+            AssertIsAssignable(nodes.Peek());
+
+            result = new AssignmentNode
+            {
+                Value = new LeftRightChild(nodes.Pop(), result)
+            };
+        }
+        else if (nodes.Count == 2)
+        {
+            AssertIsAssignable(result);
+
+            result = new AssignmentNode
+            {
+                Value = new LeftRightChild(result, nodes.Pop())
+            };
+        }
+
+        return result;
+
+        void AssertIsAssignable(Node? node)
+        {
+            if (node is not IdentifierNode and not VariableDeclarationNode or null)
+            {
+                Diagnostics.LogError(node?.Meta ?? _currentToken.Meta, "Invalid term to the left of the assignment operator.");
+            }
+        }
+    }
+
+    private Node? ParseTerm()
+    {
+        var result = ParseFactor();
 
         while (_currentToken.Type is TokenType.ADDITION or TokenType.SUBTRACTION)
         {
             if (_currentToken.Type is TokenType.ADDITION)
             {
                 Next();
-                var addition = new AdditionNode();
-                addition.Value.LeftChild = result;
-                addition.Value.RightChild = ParseMultiplicationAndDivision();
-                result = addition;
+                result = new AdditionNode { Meta = _currentToken.Meta, Value = new LeftRightChild(result, ParseFactor()) };
             }
             else if (_currentToken.Type is TokenType.SUBTRACTION)
             {
                 Next();
-                var subtraction = new SubtractionNode();
-                subtraction.Value.LeftChild = result;
-                subtraction.Value.RightChild = ParseMultiplicationAndDivision();
-                result = subtraction;
+                result = new SubtractionNode { Meta = _currentToken.Meta, Value = new LeftRightChild(result, ParseFactor()) };
             }
         }
 
         return result;
     }
 
-    private Node? ParseMultiplicationAndDivision()
+    private Node? ParseFactor()
     {
-        var result = ParseTerm();
+        var result = ParsePrimary();
 
         while (_currentToken.Type is TokenType.MULTIPLICATION or TokenType.DIVISION or TokenType.MODULUS)
         {
             if (_currentToken.Type is TokenType.MULTIPLICATION)
             {
                 Next();
-                var multiplication = new MultiplicationNode();
-                multiplication.Value.LeftChild = result;
-                multiplication.Value.RightChild = ParseTerm();
-                result = multiplication;
+                result = new MultiplicationNode { Meta = _currentToken.Meta, Value = new LeftRightChild(result, ParseFactor()) };
             }
             else if (_currentToken.Type is TokenType.DIVISION)
             {
                 Next();
-                var division = new DivisionNode();
-                division.Value.LeftChild = result;
-                division.Value.RightChild = ParseTerm();
-                result = division;
+                result = new DivisionNode { Meta = _currentToken.Meta, Value = new LeftRightChild(result, ParseFactor()) };
             }
             else if (_currentToken.Type is TokenType.MODULUS)
             {
                 Next();
-                var modulus = new ModulusNode();
-                modulus.Value.LeftChild = result;
-                modulus.Value.RightChild = ParseTerm();
-                result = modulus;
+                result = new ModulusNode { Meta = _currentToken.Meta, Value = new LeftRightChild(result, ParseFactor()) };
             }
         }
 
         return result;
     }
 
-    private Node? ParseTerm()
+    private Node? ParsePrimary()
     {   
+        // allows functions defined in this methods
+        // body to stop the default behaviour of
+        // moving to the next token after parsing
+        var shouldMoveToNext = true;
+
         Node? result = _currentToken.Type switch
         {
             TokenType.INTEGER => new IntegerNode(int.Parse(_currentToken.Value)),
@@ -160,11 +222,51 @@ public sealed class Parser
             TokenType.STRING => new StringNode(_currentToken.Value),
             TokenType.IDENTIFIER => new IdentifierNode(_currentToken.Value),
             TokenType.BOOLEAN => new BooleanNode(bool.Parse(_currentToken.Value)),
+            TokenType.PARAN_OPEN => GetNestedExpression(),
+            TokenType.TYPE => GetVariableDeclaration(),
             _ => null
         };
+
+        if (result is null) Diagnostics.LogError(_currentToken.Meta, $"Invalid primary \"{_currentToken.Value}\" in expression.");
         
-        Next();
+        if (shouldMoveToNext)
+        {
+            Next();
+        }
 
         return result;
+
+        Expression GetNestedExpression()
+        {
+            Next();
+            var exp = ParseExpression();
+
+            AssertType(TokenType.PARAN_CLOSE);
+
+            return exp;
+        }
+
+        VariableDeclarationNode GetVariableDeclaration()
+        {
+            var node = new VariableDeclarationNode();
+
+            node.Value.LeftChild = new TypeNode(_currentToken.Value);
+
+            Next();
+            AssertType(TokenType.IDENTIFIER);
+
+            node.Value.RightChild = new IdentifierNode(_currentToken.Value);
+
+            Next();
+
+            if (_currentToken.Type is not TokenType.END_OF_LINE and not TokenType.END_OF_FILE and not TokenType.ASSIGNMENT)
+            {
+                Diagnostics.LogError(_currentToken.Meta, $"Variable declarations can only be assigned to but found \"{_currentToken.Type}\".");
+            }
+
+            shouldMoveToNext = false;
+
+            return node;
+        }
     }
 }

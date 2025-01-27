@@ -1,21 +1,10 @@
-using Slice.Models.Nodes;
-
 namespace Slice.Models.Nodes.BinaryOperators;
 
-public sealed class LeftRightChild
+public sealed class LeftRightChild(Node? leftChild, Node? rightChild)
 {
-    public Node? LeftChild { get; set; }
-    public Node? RightChild { get; set; }
-
-    public LeftRightChild(Node? leftChild, Node? rightChild)
-    {
-        LeftChild = leftChild;
-        RightChild = rightChild;
-    }
+    public Node? LeftChild { get; set; } = leftChild;
+    public Node? RightChild { get; set; } = rightChild;
 }
 
-public abstract class BinaryOperatorNode : Node<LeftRightChild>
-{
-    protected BinaryOperatorNode() : base(new LeftRightChild(null, null))
-    { }
-}
+public abstract class BinaryOperatorNode() : Node<LeftRightChild>(new LeftRightChild(null, null))
+{ }

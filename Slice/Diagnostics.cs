@@ -1,3 +1,5 @@
+using Slice.Models;
+
 namespace Slice;
 
 public static class Diagnostics
@@ -14,6 +16,8 @@ public static class Diagnostics
         if (_throwInsteadOfExiting) throw new DiagnosticsException(log);
         Environment.Exit(1);
     }
+
+    public static void LogError(Meta meta, string message) => LogError(meta.Line, meta.Start, meta.End, message);
     
     public static void LogWarning(string message)
     {

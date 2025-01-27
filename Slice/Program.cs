@@ -19,6 +19,6 @@ while (true)
 
             root?.Print(string.Empty);
         }
-        catch { }
+        catch (DiagnosticsException) { }
     }
 }
