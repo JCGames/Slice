@@ -10,8 +10,7 @@ public sealed class Parser
     private List<Token> _tokens = [];
     private int _currentIndex;
     private Token _currentToken = null!;
-    private bool _hasNext = true;
-    
+
     public static Parser FromFile(string filePath) => new()
     {
         _tokens = Lexer
@@ -28,11 +27,7 @@ public sealed class Parser
 
     private void Next()
     {
-        if (_currentIndex + 1 >= _tokens.Count)
-        {
-            _hasNext = false;
-            return;
-        }
+        if (_currentIndex + 1 >= _tokens.Count) return;
 
         _currentIndex++;
         _currentToken = _tokens[_currentIndex];
@@ -55,7 +50,6 @@ public sealed class Parser
 
         _currentIndex--;
         _currentToken = _tokens[_currentIndex];
-        _hasNext = true;
     }
 
     private static void AssertType(TokenType expectedType, Token token)
