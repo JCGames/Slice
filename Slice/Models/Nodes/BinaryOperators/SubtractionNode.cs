@@ -4,7 +4,7 @@ public class SubtractionNode : BinaryOperatorNode
 {
     public override void Print(string padding)
     {
-        Console.WriteLine(padding + "Subtraction");
+        Console.WriteLine(padding + nameof(SubtractionNode)[..^4]);
         Console.WriteLine(padding + "LEFT:");
         Value.LeftChild?.Print(padding + '\t');
         Console.WriteLine(padding + "RIGHT:");

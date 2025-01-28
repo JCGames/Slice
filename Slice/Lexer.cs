@@ -96,9 +96,9 @@ public sealed class Lexer
             ReadString();
         }
         
-        //  ================
-        //  BINARY OPERATORS
-        //  ================
+        //  =================
+        //  DOUBLE CHARACTERS
+        //  =================
         
         // ASSIGNMENT
         else if (_scanner.Current is '<' && _scanner.Peek() is '-')
@@ -156,9 +156,9 @@ public sealed class Lexer
             _scanner.Next();
         }
         
-        //  ===============
-        //  UNARY OPERATORS
-        //  ===============
+        //  =================
+        //  SINGLE CHARACTERS
+        //  =================
         
         // GREATER THAN
         else if (_scanner.Current is '>')
@@ -375,12 +375,15 @@ public sealed class Lexer
 
             _scanner.Next();
         }
-
+        
+        // KEYWORDS
         var type = identifier switch
         {
             "true" or "false" or "True" or "False" => TokenType.BOOLEAN,
             "int" or "decimal" => TokenType.TYPE,
             "while" or "if" or "else" => TokenType.KEYWORD,
+            "and" => TokenType.AND,
+            "or" => TokenType.OR,
             _ => TokenType.IDENTIFIER
         };
         

@@ -109,13 +109,13 @@ public sealed class Parser
     private Node? ParseAssignment()
     {
         var nodes = new Stack<Node?>();
-        nodes.Push(ParseTerm());
+        nodes.Push(ParseLogical());
         Node? result = nodes.Peek();
 
         while (_currentToken.Type is TokenType.ASSIGNMENT)
         {
             Next();
-            nodes.Push(ParseTerm());
+            nodes.Push(ParseLogical());
         }
 
         if (nodes.Count > 2)
@@ -159,6 +159,83 @@ public sealed class Parser
                 Diagnostics.LogError(node?.Meta ?? _currentToken.Meta, "Invalid term to the left of the assignment operator.");
             }
         }
+    }
+
+    private Node? ParseLogical()
+    {
+        var result = ParseEquality();
+
+        while (_currentToken.Type is TokenType.AND or TokenType.OR)
+        {
+            if (_currentToken.Type is TokenType.AND)
+            {
+                Next();
+                result = new AndNode { Meta = _currentToken.Meta, Value = new LeftRightChild(result, ParseEquality()) };
+            }
+            else if (_currentToken.Type is TokenType.OR)
+            {
+                Next();
+                result = new OrNode { Meta = _currentToken.Meta, Value = new LeftRightChild(result, ParseEquality()) };
+            }
+        }
+
+        return result;
+    }
+    
+    private Node? ParseEquality()
+    {
+        var result = ParseRelational();
+
+        while (_currentToken.Type is TokenType.EQUALS or TokenType.NOT_EQUALS)
+        {
+            if (_currentToken.Type is TokenType.EQUALS)
+            {
+                Next();
+                result = new EqualsNode { Meta = _currentToken.Meta, Value = new LeftRightChild(result, ParseRelational()) };
+            }
+            else if (_currentToken.Type is TokenType.NOT_EQUALS)
+            {
+                Next();
+                result = new NotEqualsNode { Meta = _currentToken.Meta, Value = new LeftRightChild(result, ParseRelational()) };
+            }
+        }
+
+        return result;
+    }
+    
+    private Node? ParseRelational()
+    {
+        var result = ParseTerm();
+
+        while (_currentToken.Type is 
+               TokenType.GREATER_THAN_OR_EQUAL or 
+               TokenType.LESS_THAN_OR_EQUAL or
+               TokenType.GREATER_THAN or
+               TokenType.LESS_THAN)
+        {
+            if (_currentToken.Type is TokenType.GREATER_THAN_OR_EQUAL)
+            {
+                Next();
+                result = new GreaterThanOrEqualToNode { Meta = _currentToken.Meta, Value = new LeftRightChild(result, ParseTerm()) };
+            }
+            else if (_currentToken.Type is TokenType.LESS_THAN_OR_EQUAL)
+            {
+                Next();
+                result = new LessThanOrEqualToNode { Meta = _currentToken.Meta, Value = new LeftRightChild(result, ParseTerm()) };
+            }
+            else if (_currentToken.Type is TokenType.GREATER_THAN)
+            {
+                Next();
+                result = new GreaterThanNode { Meta = _currentToken.Meta, Value = new LeftRightChild(result, ParseTerm()) };
+            }
+            else if (_currentToken.Type is TokenType.LESS_THAN)
+            {
+                Next();
+                result = new LessThanNode { Meta = _currentToken.Meta, Value = new LeftRightChild(result, ParseTerm()) };
+            }
+        }
+
+        return result;
     }
 
     private Node? ParseTerm()

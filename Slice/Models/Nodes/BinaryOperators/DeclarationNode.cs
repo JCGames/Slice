@@ -4,7 +4,7 @@ public class DeclarationNode : BinaryOperatorNode
 {
     public override void Print(string padding)
     {
-        Console.WriteLine(padding + "Variable Declaration");
+        Console.WriteLine(padding + nameof(DeclarationNode)[..^4]);
         Console.WriteLine(padding + "LEFT:");
         Value.LeftChild?.Print(padding + '\t');
         Console.WriteLine(padding + "RIGHT:");
