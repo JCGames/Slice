@@ -1,4 +1,5 @@
 using Slice;
+using Slice.Parser;
 
 namespace Tests;
 
@@ -15,7 +16,9 @@ public class ParserTests
         var rootNode = Parser
             .FromText("test", code)
             .Parse();
+
+        var root = Parser.Analyze(rootNode);
         
-        rootNode?.Print(string.Empty);
+        root.Print(string.Empty);
     }
 }

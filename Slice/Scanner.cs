@@ -9,16 +9,10 @@ public sealed class Scanner : IDisposable
     public string FilePath { get; private set; } = null!;
     public char Current { get; private set; } = '\0';
     public long Index => _stream.Position;
-    public static bool IsEndOfLineCharacter(char c) => c is '\n' or '\r';
-
     public bool IsEndOfStream { get; private set; }
-    public bool IsWhitespace => char.IsWhiteSpace(Current);
-    public bool IsEndOfLine => IsEndOfLineCharacter(Current);
-    public bool IsLetter => char.IsLetter(Current);
-    public bool IsDigit => char.IsDigit(Current);
-    public bool IsLetterOrDigit => char.IsLetterOrDigit(Current);
-    public bool IsNumber => char.IsNumber(Current);
 
+    private Scanner() { }
+    
     public static Scanner FromFile(string filePath)
     {
         var scanner = new Scanner
@@ -28,6 +22,7 @@ public sealed class Scanner : IDisposable
         };
 
         scanner.Current = (char)scanner._stream.ReadByte();
+        scanner.IsEndOfStream = scanner.Current is '\0';
         return scanner;
     }
 
@@ -40,11 +35,14 @@ public sealed class Scanner : IDisposable
         };
         
         scanner.Current = (char)scanner._stream.ReadByte();
+        scanner.IsEndOfStream = scanner.Current is '\0';
         return scanner;
     }
 
     public void Next()
     {
+        if (IsEndOfStream) return;
+        
         Current = (char)_stream.ReadByte();
         IsEndOfStream = Current is '\0';   
     }

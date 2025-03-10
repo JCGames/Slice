@@ -6,8 +6,8 @@ public enum TokenType
     END_OF_FILE,
     END_OF_LINE,
     SINGLE_LINE_COMMENT,
-    TYPE,
     KEYWORD,
+    TYPE_KEYWORD,
     IDENTIFIER,
     STRING,
     BOOLEAN,
@@ -40,12 +40,12 @@ public enum TokenType
     LESS_THAN_OR_EQUAL,
     AND,
     OR,
-    BITWISE_OR,
-    BITWISE_AND,
-    BITWISE_XOR,
-    BITWISE_LEFT_SHIFT,
-    BITWISE_RIGHT_SHIFT,
-    BITWISE_NOT
+    // BITWISE_OR,
+    // BITWISE_AND,
+    // BITWISE_XOR,
+    // BITWISE_LEFT_SHIFT,
+    // BITWISE_RIGHT_SHIFT,
+    // BITWISE_NOT
 }
 
 public class Token(

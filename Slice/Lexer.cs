@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Immutable;
 using Slice.Models;
 
 namespace Slice;
@@ -28,6 +29,23 @@ public sealed class Lexer
     private const string Multiplication = "*";
     private const string Division = "/";
     private const string Modulus = "%";
+
+    private readonly char[] _endOfLineChars = [ '\n', '\r' ];
+    private readonly Dictionary<string, TokenType> _keywords = new() {
+        { "int", TokenType.TYPE_KEYWORD },
+        { "decimal", TokenType.TYPE_KEYWORD },
+        { "bool", TokenType.TYPE_KEYWORD },
+        { "string", TokenType.TYPE_KEYWORD },
+        { "loop", TokenType.KEYWORD },
+        { "true", TokenType.BOOLEAN },
+        { "false", TokenType.BOOLEAN },
+        { "if", TokenType.KEYWORD },
+        { "else", TokenType.KEYWORD },
+        { "and", TokenType.AND },
+        { "or", TokenType.OR },
+    };
+    
+    private Lexer() { }
     
     public static Lexer FromFile(string filePath) => new()
     {
@@ -39,7 +57,7 @@ public sealed class Lexer
         _scanner = Scanner.FromText(fileName, text)
     };
 
-    public List<Token> Tokenize()
+    public ImmutableList<Token> Tokenize()
     {
         while (!_scanner.IsEndOfStream) ScanNextToken();
         
@@ -48,7 +66,7 @@ public sealed class Lexer
             string.Empty, 
             new Meta(_scanner.FilePath, _currentLine, _scanner.Index, _scanner.Index)));
         
-        return _tokens;
+        return _tokens.ToImmutableList();
     }
 
     private void ScanNextToken()
@@ -63,7 +81,7 @@ public sealed class Lexer
 
             _scanner.Next();
         }
-        else if (_scanner.IsEndOfLine)
+        else if (_endOfLineChars.Contains(_scanner.Current))
         {
             _tokens.Add(new Token(
                 TokenType.END_OF_LINE, 
@@ -72,7 +90,7 @@ public sealed class Lexer
 
             _currentLine++;
 
-            if (Scanner.IsEndOfLineCharacter(_scanner.Peek())) _scanner.Next();
+            if (_endOfLineChars.Contains(_scanner.Peek())) _scanner.Next();
             _scanner.Next();
         }
         // SINGLE LINE COMMENT
@@ -81,12 +99,12 @@ public sealed class Lexer
             ReadSingleLineComment();
         }
         // IDENTIFIER
-        else if (_scanner.Current is '_' || _scanner.IsLetter)
+        else if (_scanner.Current is '_' || char.IsLetter(_scanner.Current))
         {
             ReadIdentifier();
         }
         // NUMBER
-        else if (_scanner.IsDigit || (_scanner.Current is '.' && char.IsDigit(_scanner.Peek())))
+        else if (char.IsDigit(_scanner.Current) || (_scanner.Current is '.' && char.IsDigit(_scanner.Peek())))
         {
             ReadNumber();
         }
@@ -307,7 +325,10 @@ public sealed class Lexer
         }
         else
         {
-            if (!_scanner.IsWhitespace) Diagnostics.LogError(_currentLine, _scanner.Index, _scanner.Index, "Found unknown character.");
+            if (!char.IsWhiteSpace(_scanner.Current))
+            {
+                Diagnostics.LogError(_currentLine, _scanner.Index, _scanner.Index, $"Found unknown character |{(int)_scanner.Current}|.");
+            }
 
             _scanner.Next();
         }
@@ -349,7 +370,7 @@ public sealed class Lexer
         {
             comment += _scanner.Current;
 
-            if (Scanner.IsEndOfLineCharacter(_scanner.Peek())) break;
+            if (_endOfLineChars.Contains(_scanner.Peek())) break;
             
             _scanner.Next();
         }
@@ -375,22 +396,21 @@ public sealed class Lexer
 
             _scanner.Next();
         }
-        
-        // KEYWORDS
-        var type = identifier switch
+
+        if (_keywords.TryGetValue(identifier, out var type))
         {
-            "true" or "false" or "True" or "False" => TokenType.BOOLEAN,
-            "int" or "decimal" => TokenType.TYPE,
-            "while" or "if" or "else" => TokenType.KEYWORD,
-            "and" => TokenType.AND,
-            "or" => TokenType.OR,
-            _ => TokenType.IDENTIFIER
-        };
-        
-        _tokens.Add(new Token(
-            type,
-            identifier,
-            new Meta(_scanner.FilePath, _currentLine, startIndex, _scanner.Index)));
+            _tokens.Add(new Token(
+                type,
+                identifier,
+                new Meta(_scanner.FilePath, _currentLine, startIndex, _scanner.Index)));
+        }
+        else
+        {
+            _tokens.Add(new Token(
+                TokenType.IDENTIFIER,
+                identifier,
+                new Meta(_scanner.FilePath, _currentLine, startIndex, _scanner.Index)));
+        }
 
         _scanner.Next();
     }

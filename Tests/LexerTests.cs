@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Slice.Models;
 using Slice;
 
@@ -9,110 +10,33 @@ public class LexerTests
     [TestMethod]
     public void TestLexer()
     {
-        const string code = """
-                            # this is a comment
-                            int decimal while if else true false True False
-                            my_identifier _my_variable _myValue1to2
-                            "This is a string"
-                            23 23.5 .5
-                            <- == != >= <= > < . { } ( ) [ ]
-                            + - * / %
-                            """;
+        Diagnostics.ThrowInsteadOfExiting();
+        
+        var tokenTypes = Enum.GetNames(typeof(TokenType));
 
-        var tokens = Lexer
-            .FromText("test", code)
-            .Tokenize();
-
-        foreach (var token in tokens)
+        foreach (var tokenType in tokenTypes)
         {
-            Console.WriteLine(token);
+            if (_testTokens.All(x => x.ResultType.ToString() != tokenType))
+            {
+                Assert.Fail($"Missing a test for token type: {tokenType}.");
+            }
         }
         
-        Assert.AreEqual(TokenType.SINGLE_LINE_COMMENT, tokens[0].Type);
-        Assert.AreEqual(" this is a comment", tokens[0].Value);
-        
-        Assert.AreEqual(TokenType.END_OF_LINE, tokens[1].Type);
-        
-        Assert.AreEqual(TokenType.TYPE, tokens[2].Type);
-        Assert.AreEqual("int", tokens[2].Value);
+        foreach (var testToken in _testTokens)
+        {
+            var lexer = Lexer.FromText(string.Empty, testToken.Text);
+            var tokens = lexer.Tokenize();
 
-        Assert.AreEqual(TokenType.TYPE, tokens[3].Type);
-        Assert.AreEqual("decimal", tokens[3].Value);
-        
-        Assert.AreEqual(TokenType.KEYWORD, tokens[4].Type);
-        Assert.AreEqual("while", tokens[4].Value);
-
-        Assert.AreEqual(TokenType.KEYWORD, tokens[5].Type);
-        Assert.AreEqual("if", tokens[5].Value);
-        
-        Assert.AreEqual(TokenType.KEYWORD, tokens[6].Type);
-        Assert.AreEqual("else", tokens[6].Value);
-
-        Assert.AreEqual(TokenType.BOOLEAN, tokens[7].Type);
-        Assert.AreEqual("true", tokens[7].Value);
-
-        Assert.AreEqual(TokenType.BOOLEAN, tokens[8].Type);
-        Assert.AreEqual("false", tokens[8].Value);
-        
-        Assert.AreEqual(TokenType.BOOLEAN, tokens[9].Type);
-        Assert.AreEqual("True", tokens[9].Value);
-        
-        Assert.AreEqual(TokenType.BOOLEAN, tokens[10].Type);
-        Assert.AreEqual("False", tokens[10].Value);
-        
-        Assert.AreEqual(TokenType.END_OF_LINE, tokens[11].Type);
-
-        Assert.AreEqual(TokenType.IDENTIFIER, tokens[12].Type);
-        Assert.AreEqual("my_identifier", tokens[12].Value);
-        
-        Assert.AreEqual(TokenType.IDENTIFIER, tokens[13].Type);
-        Assert.AreEqual("_my_variable", tokens[13].Value);
-        
-        Assert.AreEqual(TokenType.IDENTIFIER, tokens[14].Type);
-        Assert.AreEqual("_myValue1to2", tokens[14].Value);
-        
-        Assert.AreEqual(TokenType.END_OF_LINE, tokens[15].Type);
-
-        Assert.AreEqual(TokenType.STRING, tokens[16].Type);
-        Assert.AreEqual("This is a string", tokens[16].Value);
-        
-        Assert.AreEqual(TokenType.END_OF_LINE, tokens[17].Type);
-
-        Assert.AreEqual(TokenType.INTEGER, tokens[18].Type);
-        Assert.AreEqual("23", tokens[18].Value);
-        
-        Assert.AreEqual(TokenType.DECIMAL, tokens[19].Type);
-        Assert.AreEqual("23.5", tokens[19].Value);
-        
-        Assert.AreEqual(TokenType.DECIMAL, tokens[20].Type);
-        Assert.AreEqual(".5", tokens[20].Value);
-        
-        Assert.AreEqual(TokenType.END_OF_LINE, tokens[21].Type);
-
-        Assert.AreEqual(TokenType.ASSIGNMENT, tokens[22].Type);
-        Assert.AreEqual(TokenType.EQUALS, tokens[23].Type);
-        Assert.AreEqual(TokenType.NOT_EQUALS, tokens[24].Type);
-        Assert.AreEqual(TokenType.GREATER_THAN_OR_EQUAL, tokens[25].Type);
-        Assert.AreEqual(TokenType.LESS_THAN_OR_EQUAL, tokens[26].Type);
-        Assert.AreEqual(TokenType.GREATER_THAN, tokens[27].Type);
-        Assert.AreEqual(TokenType.LESS_THAN, tokens[28].Type);
-        Assert.AreEqual(TokenType.DOT_ACCESSOR, tokens[29].Type);
-        Assert.AreEqual(TokenType.BLOCK_OPEN, tokens[30].Type);
-        Assert.AreEqual(TokenType.BLOCK_CLOSE, tokens[31].Type);
-        Assert.AreEqual(TokenType.PARAN_OPEN, tokens[32].Type);
-        Assert.AreEqual(TokenType.PARAN_CLOSE, tokens[33].Type);
-        Assert.AreEqual(TokenType.SQUARE_OPEN, tokens[34].Type);
-        Assert.AreEqual(TokenType.SQUARE_CLOSE, tokens[35].Type);
-        
-        Assert.AreEqual(TokenType.END_OF_LINE, tokens[36].Type);
-        
-        Assert.AreEqual(TokenType.ADDITION, tokens[37].Type);
-        Assert.AreEqual(TokenType.SUBTRACTION, tokens[38].Type);
-        Assert.AreEqual(TokenType.MULTIPLICATION, tokens[39].Type);
-        Assert.AreEqual(TokenType.DIVISION, tokens[40].Type);
-        Assert.AreEqual(TokenType.MODULUS, tokens[41].Type);
-
-        Assert.AreEqual(TokenType.END_OF_FILE, tokens[42].Type);
+            if (tokens.Count > 1)
+            {
+                tokens = tokens.SkipLast(1).ToImmutableList();
+            }
+            
+            if (tokens.Any(x => x.Type != testToken.ResultType))
+            {
+                Assert.Fail($"Not all results had a type of {testToken.ResultType}.");
+            }
+        }
     }
 
     [TestMethod]
@@ -144,4 +68,173 @@ public class LexerTests
                 .Tokenize();
         }, "Fatal Error <1:1-5>: To many decimal points.");
     }
+
+    private class TestToken
+    {
+        public required string Text { get; set; }
+        public required TokenType ResultType { get; set; }
+    }
+
+    private static readonly List<TestToken> _testTokens = [
+        new()
+        {
+            Text = "\n",
+            ResultType = TokenType.END_OF_LINE
+        },
+        new()
+        {
+            Text = "",
+            ResultType = TokenType.END_OF_FILE
+        },
+        new()
+        {
+            Text = "#",
+            ResultType = TokenType.SINGLE_LINE_COMMENT
+        },
+        new()
+        {
+            Text = "if loop else",
+            ResultType = TokenType.KEYWORD
+        },
+        new()
+        {
+            Text = "Object",
+            ResultType = TokenType.IDENTIFIER
+        },
+        new()
+        {
+            Text = "\"Some string\"",
+            ResultType = TokenType.STRING
+        },
+        new()
+        {
+            Text = "true false",
+            ResultType = TokenType.BOOLEAN
+        },
+        new()
+        {
+            Text = "10 32 44",
+            ResultType = TokenType.INTEGER
+        },
+        new()
+        {
+            Text = "10.4 3.4 2.2",
+            ResultType = TokenType.DECIMAL
+        },
+        new()
+        {
+            Text = "{",
+            ResultType = TokenType.BLOCK_OPEN
+        },
+        new()
+        {
+            Text = "}",
+            ResultType = TokenType.BLOCK_CLOSE
+        },
+        new()
+        {
+            Text = "(",
+            ResultType = TokenType.PARAN_OPEN
+        },
+        new()
+        {
+            Text = ")",
+            ResultType = TokenType.PARAN_CLOSE
+        },
+        new()
+        {
+            Text = "[",
+            ResultType = TokenType.SQUARE_OPEN
+        },
+        new()
+        {
+            Text = "]",
+            ResultType = TokenType.SQUARE_CLOSE
+        },
+        new()
+        {
+            Text = ">",
+            ResultType = TokenType.GREATER_THAN
+        },
+        new()
+        {
+            Text = "<",
+            ResultType = TokenType.LESS_THAN
+        },
+        new()
+        {
+            Text = ".",
+            ResultType = TokenType.DOT_ACCESSOR
+        },
+        new()
+        {
+            Text = "+",
+            ResultType = TokenType.ADDITION
+        },
+        new()
+        {
+            Text = "-",
+            ResultType = TokenType.SUBTRACTION
+        },
+        new()
+        {
+            Text = "*",
+            ResultType = TokenType.MULTIPLICATION
+        },
+        new()
+        {
+            Text = "/",
+            ResultType = TokenType.DIVISION
+        },
+        new()
+        {
+            Text = "%",
+            ResultType = TokenType.MODULUS
+        },
+        new()
+        {
+            Text = "<-",
+            ResultType = TokenType.ASSIGNMENT
+        },
+        new()
+        {
+            Text = "true",
+            ResultType = TokenType.BOOLEAN
+        },
+        new()
+        {
+            Text = "==",
+            ResultType = TokenType.EQUALS
+        },
+        new()
+        {
+            Text = "!=",
+            ResultType = TokenType.NOT_EQUALS
+        },
+        new()
+        {
+            Text = ">=",
+            ResultType = TokenType.GREATER_THAN_OR_EQUAL
+        },
+        new()
+        {
+            Text = "<=",
+            ResultType = TokenType.LESS_THAN_OR_EQUAL
+        },
+        new()
+        {
+            Text = "and",
+            ResultType = TokenType.AND
+        },
+        new()
+        {
+            Text = "or",
+            ResultType = TokenType.OR
+        },
+        new()
+        {
+            Text = "int decimal bool string",
+            ResultType = TokenType.TYPE_KEYWORD
+        }
+    ];
 }

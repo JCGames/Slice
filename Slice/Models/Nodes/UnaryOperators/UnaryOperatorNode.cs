@@ -2,8 +2,11 @@ using Slice.Models.Nodes;
 
 namespace Slice.Models.Nodes.UnaryOperators;
 
-public abstract class UnaryOperatorNode : Node<Node?>
+public abstract class UnaryOperatorNode() : Node<Node?>(null)
 {
-    protected UnaryOperatorNode() : base(null)
-    { }
+    public override void Print(string padding)
+    {
+        Console.WriteLine(padding + GetType().Name);
+        Value?.Print(padding + '\t');
+    }
 }

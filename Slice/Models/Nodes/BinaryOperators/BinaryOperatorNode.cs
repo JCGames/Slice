@@ -7,4 +7,13 @@ public sealed class LeftRightChild(Node? leftChild, Node? rightChild)
 }
 
 public abstract class BinaryOperatorNode() : Node<LeftRightChild>(new LeftRightChild(null, null))
-{ }
+{
+    public override void Print(string padding)
+    {
+        Console.WriteLine(padding + GetType().Name);
+        Console.WriteLine(padding + "Left:");
+        Value.LeftChild?.Print(padding + '\t');
+        Console.WriteLine(padding + "Right:");
+        Value.RightChild?.Print(padding + '\t');
+    }
+}
