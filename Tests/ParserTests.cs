@@ -21,4 +21,17 @@ public class ParserTests
         
         root.Print(string.Empty);
     }
+    
+    [TestMethod]
+    public void TestFileParse()
+    {
+        Diagnostics.ThrowInsteadOfExiting();
+        
+        var root = Parser
+            .FromFile("empty.slice")
+            .Parse();
+        
+        var analyzedTree = Parser.Analyze(root);
+        analyzedTree.Print(string.Empty);
+    }
 }

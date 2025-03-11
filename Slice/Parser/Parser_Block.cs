@@ -11,7 +11,7 @@ public partial class Parser
         Brackets,
     }
     
-    private BlockNode ParseBlock(ParseBlockOption option)
+    private BlockNode ParseBlock(ParseBlockOption option, ParseStatementOption statementOption = ParseStatementOption.None)
     {
         var block = new BlockNode();
         
@@ -19,7 +19,7 @@ public partial class Parser
         {
             while (HasNext)
             {
-                if (ParseStatement() is { } result)
+                if (ParseStatement(statementOption) is { } result)
                 {
                     block.Value.Add(result);
                 }
@@ -41,7 +41,7 @@ public partial class Parser
             
             while (HasNext && CurrentToken.Type != TokenType.BLOCK_CLOSE)
             {
-                if (ParseStatement() is { } result)
+                if (ParseStatement(statementOption) is { } result)
                 {
                     block.Value.Add(result);
                 }   

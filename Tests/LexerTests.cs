@@ -69,6 +69,18 @@ public class LexerTests
         }, "Fatal Error <1:1-5>: To many decimal points.");
     }
 
+    [TestMethod]
+    public void TestTokensFromFile()
+    {
+        Diagnostics.ThrowInsteadOfExiting();
+
+        var tokens = Lexer
+            .FromFile("empty.slice")
+            .Tokenize();
+        
+        tokens.ForEach(Console.WriteLine);
+    }
+
     private class TestToken
     {
         public required string Text { get; set; }

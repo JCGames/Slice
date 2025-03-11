@@ -6,8 +6,31 @@ namespace Slice.Parser;
 
 public partial class Parser
 {
-    private Node ParseStatement()
+    private enum ParseStatementOption
     {
+        None,
+        InFunction,
+        InLoopInFunction
+    }
+    
+    private Node ParseStatement(ParseStatementOption option = ParseStatementOption.None)
+    {
+        // Return
+        if (option is ParseStatementOption.InFunction
+            or ParseStatementOption.InLoopInFunction
+            && CurrentToken.Type is TokenType.RETURN)
+        {
+            MoveNext();
+
+            return new ReturnNode(ParseExpression());
+        }
+        
+        // Function Call
+        if (CurrentToken.Type is TokenType.IDENTIFIER && PeekNext().Type is TokenType.PARAN_OPEN)
+        {
+            return ParseFunctionCall();
+        }
+        
         // Function
         if (CurrentToken.Type is TokenType.KEYWORD && CurrentToken.Value == "fn")
         {

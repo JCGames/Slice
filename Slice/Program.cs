@@ -3,6 +3,18 @@ using Slice.Parser;
 
 Diagnostics.ThrowInsteadOfExiting();
 
+if (args.Length >= 1)
+{
+    var root = Parser
+        .FromFile(args[0])
+        .Parse();
+
+    var analyzedTree = Parser.Analyze(root);
+    analyzedTree.Print(string.Empty);
+    
+    return;
+}
+
 while (true)
 {
     Console.Write(":> ");
@@ -17,12 +29,8 @@ while (true)
             var root = Parser
                 .FromText("cmdline", command)
                 .Parse();
-
-            root.Print(string.Empty);
-
-            var analyzedTree = Parser.Analyze(root);
             
-            Console.WriteLine("Analyzed Tree:");
+            var analyzedTree = Parser.Analyze(root);
             analyzedTree.Print(string.Empty);
         }
         catch (DiagnosticsException) { }

@@ -44,7 +44,7 @@ public partial class Parser
             Diagnostics.LogError(CurrentToken.Meta, "Missing open bracket.");
         }
 
-        function.Body = ParseBlock(ParseBlockOption.Brackets);
+        function.Body = ParseBlock(ParseBlockOption.Brackets, ParseStatementOption.InFunction);
         
         MoveNext();
         

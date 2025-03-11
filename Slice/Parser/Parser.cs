@@ -20,9 +20,14 @@ public sealed partial class Parser
     
     private void MoveNext()
     {
-        if (_currentIndex >= _tokens.Count) return;
+        if (_currentIndex >= _tokens.Count - 1) return;
         
         _currentIndex++;
+
+        while (CurrentToken.Type is TokenType.END_OF_LINE && _currentIndex < _tokens.Count)
+        {
+            _currentIndex++;
+        }
     }
 
     private Token PeekNext()

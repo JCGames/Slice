@@ -13,6 +13,7 @@ public enum TokenType
     BOOLEAN,
     INTEGER,
     DECIMAL,
+    RETURN,
     
     // BLOCKS
     BLOCK_OPEN,

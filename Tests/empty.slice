@@ -1,0 +1,9 @@
+int initialA <- 0
+int initialB <- 10
+
+add(initialA, initialB)
+
+fn add(a: int, b: int): int 
+{
+    ret a + b
+}

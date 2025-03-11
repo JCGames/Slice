@@ -45,7 +45,8 @@ public sealed class Lexer
         { "else", TokenType.KEYWORD },
         { "and", TokenType.AND },
         { "or", TokenType.OR },
-        { "fn", TokenType.KEYWORD }
+        { "fn", TokenType.KEYWORD },
+        { "ret", TokenType.RETURN }
     };
     
     private Lexer() { }

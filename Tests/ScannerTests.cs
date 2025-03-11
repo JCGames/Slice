@@ -8,7 +8,7 @@ public class ScannerTests
     [TestMethod]
     public void TestNext()
     {
-        using var scanner = Scanner.FromFile("./Junk.txt");
+        using var scanner = Scanner.FromFile("junk.slice");
 
         Assert.AreEqual('T', scanner.Current);
         scanner.Next();
@@ -18,7 +18,7 @@ public class ScannerTests
     [TestMethod]
     public void TestPeek()
     {
-        using var scanner = Scanner.FromFile("./Junk.txt");
+        using var scanner = Scanner.FromFile("junk.slice");
         
         Assert.AreEqual('h', scanner.Peek());
         Assert.AreEqual('T', scanner.Current);
@@ -27,7 +27,7 @@ public class ScannerTests
     [TestMethod]
     public void TestBack()
     {
-        using var scanner = Scanner.FromFile("./Junk.txt");
+        using var scanner = Scanner.FromFile("junk.slice");
 
         scanner.Next();
         
@@ -81,5 +81,23 @@ public class ScannerTests
         scanner.Back();
         
         Assert.AreEqual('W', scanner.Current);
+    }
+
+    [TestMethod]
+    public void ReadEntireFile()
+    {
+        using var scanner = Scanner.FromFile("junk.slice");
+
+        var result = string.Empty;
+        
+        while (!scanner.IsEndOfStream)
+        {
+            result += scanner.Current;
+            scanner.Next();
+        }
+        
+        result += scanner.Current;
+        
+        Console.WriteLine(result);
     }
 }

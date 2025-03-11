@@ -21,8 +21,11 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="Junk.txt">
+      <None Update="junk.slice">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="empty.slice">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>
 

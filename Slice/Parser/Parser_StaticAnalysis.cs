@@ -192,6 +192,19 @@ public partial class Parser
         {
             unaryOperatorNode.Value = SimplifyNode(unaryOperatorNode.Value);
         }
+        else if (node is FunctionCallNode functionCallNode)
+        {
+            for (var i = 0; i < functionCallNode.Arguments.Count; i++)
+            {
+                functionCallNode.Arguments[i] = SimplifyNode(functionCallNode.Arguments[i]) as ExpressionNode ?? 
+                                                throw new InvalidCastException("Should not be casting to something other than an expression.");
+            }
+        }
+        else if (node is FunctionNode functionNode)
+        {
+            functionNode.Body = SimplifyNode(functionNode.Body) as BlockNode ??
+                                throw new InvalidCastException("Should not be casting to something other than a block.");
+        }
 
         return node ?? throw new InvalidOperationException("Static analysis should never result in a null simplified node.");
     }

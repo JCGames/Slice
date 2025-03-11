@@ -9,7 +9,7 @@ public sealed class Scanner : IDisposable
     public string FilePath { get; private set; } = null!;
     public char Current { get; private set; } = '\0';
     public long Index => _stream.Position;
-    public bool IsEndOfStream { get; private set; }
+    public bool IsEndOfStream => _stream.Position == _stream.Length && (Current == 0 || Current == 65535);
 
     private Scanner() { }
     
@@ -22,7 +22,6 @@ public sealed class Scanner : IDisposable
         };
 
         scanner.Current = (char)scanner._stream.ReadByte();
-        scanner.IsEndOfStream = scanner.Current is '\0';
         return scanner;
     }
 
@@ -35,7 +34,6 @@ public sealed class Scanner : IDisposable
         };
         
         scanner.Current = (char)scanner._stream.ReadByte();
-        scanner.IsEndOfStream = scanner.Current is '\0';
         return scanner;
     }
 
@@ -44,7 +42,6 @@ public sealed class Scanner : IDisposable
         if (IsEndOfStream) return;
         
         Current = (char)_stream.ReadByte();
-        IsEndOfStream = Current is '\0';   
     }
 
     public char Peek()
@@ -63,7 +60,6 @@ public sealed class Scanner : IDisposable
         
         // read the byte here
         Current = (char)_stream.ReadByte();
-        IsEndOfStream = false;
     }
 
     public void Dispose()
