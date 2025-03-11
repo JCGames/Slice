@@ -18,6 +18,8 @@ public sealed class Lexer
     private const string GreaterThanOrEqual = ">=";
     private const string LessThanOrEqual = "<=";
     private const string DotAccessor = ".";
+    private const string COLON = ":";
+    private const string COMMA = ",";
     private const string BlockOpen = "{";
     private const string BlockClose = "}";
     private const string ParanOpen = "(";
@@ -43,6 +45,7 @@ public sealed class Lexer
         { "else", TokenType.KEYWORD },
         { "and", TokenType.AND },
         { "or", TokenType.OR },
+        { "fn", TokenType.KEYWORD }
     };
     
     private Lexer() { }
@@ -202,8 +205,28 @@ public sealed class Lexer
         else if (_scanner.Current is '.')
         {
             _tokens.Add(new Token(
-                TokenType.DOT_ACCESSOR, 
+                TokenType.DOT, 
                 DotAccessor,
+                new Meta(_scanner.FilePath, _currentLine, _scanner.Index, _scanner.Index)));
+            
+            _scanner.Next();
+        }
+        // COLON
+        else if (_scanner.Current is ':')
+        {
+            _tokens.Add(new Token(
+                TokenType.COLON, 
+                COLON,
+                new Meta(_scanner.FilePath, _currentLine, _scanner.Index, _scanner.Index)));
+            
+            _scanner.Next();
+        }
+        // COMMA
+        else if (_scanner.Current is ',')
+        {
+            _tokens.Add(new Token(
+                TokenType.COMMA, 
+                COMMA,
                 new Meta(_scanner.FilePath, _currentLine, _scanner.Index, _scanner.Index)));
             
             _scanner.Next();

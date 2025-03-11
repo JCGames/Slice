@@ -164,7 +164,7 @@ public class LexerTests
         new()
         {
             Text = ".",
-            ResultType = TokenType.DOT_ACCESSOR
+            ResultType = TokenType.DOT
         },
         new()
         {
@@ -235,6 +235,16 @@ public class LexerTests
         {
             Text = "int decimal bool string",
             ResultType = TokenType.TYPE_KEYWORD
+        },
+        new()
+        {
+            Text = ":",
+            ResultType = TokenType.COLON
+        },
+        new()
+        {
+            Text = ",",
+            ResultType = TokenType.COMMA
         }
     ];
 }

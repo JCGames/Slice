@@ -25,12 +25,14 @@ public enum TokenType
     // SINGLE CHARACTERS
     GREATER_THAN,
     LESS_THAN,
-    DOT_ACCESSOR,
+    DOT,
     ADDITION,
     SUBTRACTION,
     MULTIPLICATION,
     DIVISION,
     MODULUS,
+    COLON,
+    COMMA,
     
     // DOUBLE CHARACTERS
     ASSIGNMENT,

@@ -33,8 +33,13 @@ public partial class Parser
             }
             
             MoveNext();
+
+            if (CurrentToken.Type == TokenType.BLOCK_CLOSE)
+            {
+                return block;
+            }
             
-            while (HasNext)
+            while (HasNext && CurrentToken.Type != TokenType.BLOCK_CLOSE)
             {
                 if (ParseStatement() is { } result)
                 {

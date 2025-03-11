@@ -8,6 +8,12 @@ public partial class Parser
 {
     private Node ParseStatement()
     {
+        // Function
+        if (CurrentToken.Type is TokenType.KEYWORD && CurrentToken.Value == "fn")
+        {
+            return ParseFunction();
+        }
+        
         // Assignment
         if (CurrentToken.Type is TokenType.IDENTIFIER && PeekNext().Type is TokenType.ASSIGNMENT)
         {
@@ -78,7 +84,7 @@ public partial class Parser
             return ParseExpression();
         }
 
-        Diagnostics.LogError(CurrentToken.Meta, "Bad statement.");
+        Diagnostics.LogError(CurrentToken.Meta, $"Bad statement {CurrentToken.Value}.");
         return new ErrorNode();
     }
 }
